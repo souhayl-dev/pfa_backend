@@ -1,0 +1,61 @@
+services:
+  mysql:
+    image: mysql:9
+    # The migration creates triggers; with binary logging on, MySQL only lets a non-admin user do
+    # that when this setting is enabled.
+    command: --log-bin-trust-function-creators=1
+    environment:
+      MYSQL_DATABASE: booking_platform
+      MYSQL_USER: booking
+      MYSQL_PASSWORD: booking
+      MYSQL_ROOT_PASSWORD: booking_root
+    ports:
+      - "3307:3306"
+    volumes:
+      - booking_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubooking", "-pbooking"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api:
+    image: maven:3.9-eclipse-temurin-21
+    working_dir: /app
+    volumes:
+      - .:/app
+      - booking_m2:/root/.m2
+    # Runs the built jar: starting from one file is far faster than spring-boot:run over a bind mount.
+    command: sh -c "mvn -q install -DskipTests && cd api && java -jar target/booking-api.jar"
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      # Read from the .env file beside this one; see .env.example.
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-2525}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-Bookly <no-reply@bookly.test>}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL:-http://localhost:5173}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  booking_mysql_data:
+    name: backend_booking_mysql_data
+  booking_m2:
+    name: booking_m2
