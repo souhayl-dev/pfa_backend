@@ -39,11 +39,11 @@ echo "Public catalog"
 R=$(req GET "/listings" ""); check "search without login" 200 "$R"
 echo "  listings found: $(grep -o '"providerId"' <<<"$R" | wc -l)"
 check "search hotels in marrakech" 200 "$(req GET "/listings?type=HOTEL&city=marrakech" "")"
-R=$(req GET "/listings?minPrice=40&maxPrice=70&sort=PRICE_DESC" ""); check "search by price range" 200 "$R"
-echo "  from 40 to 70, dearest first: $(grep -oE '"fromPrice":[0-9.]+' <<<"$R" | tr '\n' ' ')"
+R=$(req GET "/listings?minPrice=400&maxPrice=700&sort=PRICE_DESC" ""); check "search by price range" 200 "$R"
+echo "  from 400 to 700, dearest first: $(grep -oE '"fromPrice":[0-9.]+' <<<"$R" | tr '\n' ' ')"
 R=$(req GET "/listings?q=fatima&minRating=4" ""); check "search by text and rating" 200 "$R"
 echo "  listings found: $(grep -o '"providerId"' <<<"$R" | wc -l)"
-check "price range upside down" 400 "$(req GET "/listings?minPrice=90&maxPrice=40" "")"
+check "price range upside down" 400 "$(req GET "/listings?minPrice=900&maxPrice=400" "")"
 check "unknown sort" 400 "$(req GET "/listings?sort=CHEAPEST" "")"
 R=$(req GET "/listings/facets?city=marrakech" ""); check "facets" 200 "$R"
 echo "  in marrakech: $(field total "$R") listings, prices $(field minPrice "$R") to $(field maxPrice "$R")"
@@ -51,7 +51,7 @@ R=$(req GET "/listings/$RIAD" ""); check "listing detail" 200 "$R"
 echo "  hotel details present: $(grep -c '"hotel":{"stars":5' <<<"$R"), units: $(grep -o '"pricingUnit"' <<<"$R" | wc -l)"
 check "reviews" 200 "$(req GET "/listings/$RIAD/reviews" "")"
 R=$(req GET "/units/$ROOM101/quote?start=2026-11-10T00:00&end=2026-11-12T00:00&guests=2" "")
-check "quote 2 nights" 200 "$R"; echo "  quote: $(field total "$R") EUR, available=$(field available "$R")"
+check "quote 2 nights" 200 "$R"; echo "  quote: $(field total "$R") MAD, available=$(field available "$R")"
 R=$(req GET "/units/$ROOM101/quote?start=2025-01-01T00:00&end=2025-01-02T00:00&guests=1" "")
 check "quote in the past" 200 "$R"; echo "  available=$(field available "$R") ($(field reason "$R"))"
 R=$(req GET "/units/$ROOM101/quote?start=2026-11-10T00:00&end=2026-11-12T00:00&guests=3" "")
@@ -86,13 +86,13 @@ echo "Tours, cars, tables"
 T() { echo "{\"unitId\":\"$TOUR\",\"start\":\"$1T00:00\",\"guestsCount\":$2}"; }
 check "tour: 11 seats when 10 are left" 409 "$(req POST /bookings "$CUSTOMER" "$(T 2026-10-15 11)")"
 R=$(req POST /bookings "$CUSTOMER" "$(T 2026-10-15 10)"); check "tour: 10 seats when 10 are left" 201 "$R"
-echo "  10 people x 180 = $(field totalAmount "$R") EUR"
+echo "  10 people x 1800 = $(field totalAmount "$R") MAD"
 check "tour: that date is now full" 409 "$(req POST /bookings "$CUSTOMER" "$(T 2026-10-15 1)")"
 check "tour: next day is a new group" 201 "$(req POST /bookings "$CUSTOMER" "$(T 2026-10-16 12)")"
 R=$(req POST /bookings "$CUSTOMER" "$(book $DUSTER 2026-11-01T10:00 2026-11-03T12:00 2)"); check "car rental" 201 "$R"
-echo "  50h rental billed: $(field totalAmount "$R") EUR (3 days x 45)"
+echo "  50h rental billed: $(field totalAmount "$R") MAD (3 days x 450)"
 R=$(req POST /bookings "$CUSTOMER" "{\"unitId\":\"$TABLE\",\"start\":\"2026-11-05T20:00\",\"guestsCount\":4}"); check "restaurant table, no end time" 201 "$R"
-echo "  4 guests x 25 = $(field totalAmount "$R") EUR"
+echo "  4 guests x 250 = $(field totalAmount "$R") MAD"
 
 echo "Reviews"
 check "already reviewed booking" 409 "$(req POST /bookings/60000000-0000-0000-0000-000000000001/review "$CUSTOMER" '{"rating":4}')"
@@ -116,7 +116,7 @@ check "bad country code" 400 "$(req PUT /profile/me/client "$OMAR" '{"nationalit
 echo "Becoming a provider"
 R=$(req POST /providers "$OMAR" '{"companyName":"Omar Travel"}'); check "register provider" 201 "$R"; P=$(field id "$R"); echo "  status $(field status "$R")"
 check "listed in switch menu" 200 "$(req GET /providers/mine "$OMAR")"
-HOTEL='{"type":"HOTEL","name":"Dar Omar","city":"Fes","countryCode":"MA","timezone":"Africa/Casablanca","currency":"EUR","hotel":{"stars":3,"checkInTime":"15:00","checkOutTime":"11:00"}}'
+HOTEL='{"type":"HOTEL","name":"Dar Omar","city":"Fes","countryCode":"MA","timezone":"Africa/Casablanca","hotel":{"stars":3,"checkInTime":"15:00","checkOutTime":"11:00"}}'
 R=$(req POST "/providers/$P/listings" "$OMAR" "$HOTEL"); check "create draft hotel" 201 "$R"; L=$(field id "$R")
 check "stars 7 rejected" 400 "$(req POST "/providers/$P/listings" "$OMAR" "${HOTEL/\"stars\":3/\"stars\":7}")"
 check "hotel without details" 400 "$(req POST "/providers/$P/listings" "$OMAR" '{"type":"HOTEL","name":"x","city":"Fes","countryCode":"MA","timezone":"Africa/Casablanca","currency":"EUR"}')"
@@ -130,9 +130,8 @@ check "tour unit in a hotel" 409 "$(req POST "/manage/listings/$L/units" "$OMAR"
 R=$(req POST "/manage/listings/$L/units" "$OMAR" '{"type":"ROOM","name":"Garden room","basePrice":60,"capacity":2,"room":{"roomNumber":"1","roomType":"DOUBLE"}}')
 check "add room" 201 "$R"; U=$(field id "$R")
 check "update room price" 200 "$(req PUT "/manage/units/$U" "$OMAR" '{"type":"ROOM","name":"Garden room","basePrice":70,"capacity":2,"room":{"roomNumber":"1","roomType":"DOUBLE"}}')"
-check "currency cannot change" 409 "$(req PUT "/manage/listings/$L" "$OMAR" "${HOTEL/EUR/MAD}")"
 check "new listing is public" 200 "$(req GET "/listings/$L" "")"
-AGENCY='{"type":"TRAVEL_AGENCY","name":"Omar Tours","city":"Fes","countryCode":"MA","timezone":"Africa/Casablanca","currency":"EUR","travelAgency":{"licenseNumber":"AGV-FES-1"}}'
+AGENCY='{"type":"TRAVEL_AGENCY","name":"Omar Tours","city":"Fes","countryCode":"MA","timezone":"Africa/Casablanca","travelAgency":{"licenseNumber":"AGV-FES-1"}}'
 R=$(req POST "/providers/$P/listings" "$OMAR" "$AGENCY"); check "create travel agency" 201 "$R"; AG=$(field id "$R")
 TOURJSON='{"type":"TOUR","name":"Fes and Middle Atlas","basePrice":120,"capacity":8,"tour":{"durationDays":2,"steps":[{"stepOrder":1,"dayNumber":1,"city":"Ifrane"},{"stepOrder":2,"dayNumber":2,"city":"Azrou"}]}}'
 R=$(req POST "/manage/listings/$AG/units" "$OMAR" "$TOURJSON"); check "add tour with steps" 201 "$R"

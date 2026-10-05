@@ -35,7 +35,7 @@ public class ProfileController {
                                         Authentication authentication) {
         return UserResponse.from(profileUseCase.updateProfile(new UpdateProfileCommand(
                 CurrentUser.id(authentication), request.firstName(), request.lastName(), request.username(),
-                request.phone(), request.gender(), request.preferredCurrency(), request.notificationsEnabled(),
+                request.phone(), request.gender(), request.notificationsEnabled(),
                 request.profileImage())));
     }
 

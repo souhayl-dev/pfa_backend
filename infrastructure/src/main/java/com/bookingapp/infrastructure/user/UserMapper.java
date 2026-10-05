@@ -11,13 +11,13 @@ public final class UserMapper {
     public static User toDomain(UserJpaEntity e) {
         return new User(e.getId(), e.getFirstName(), e.getLastName(), e.getEmail(), e.getUsername(),
                 e.getPasswordHash(), e.getPhone(), e.getGender(), e.getProfileImage(), e.isActive(), e.isVerified(),
-                e.getPreferredCurrency(), e.isNotificationsEnabled(), e.getRoles(), e.getCreatedAt(),
+                e.isNotificationsEnabled(), e.getRoles(), e.getCreatedAt(),
                 e.getUpdatedAt());
     }
 
     public static UserJpaEntity toEntity(User u) {
         return new UserJpaEntity(u.id(), u.firstName(), u.lastName(), u.email(), u.username(), u.passwordHash(),
-                u.phone(), u.gender(), u.profileImage(), u.active(), u.verified(), u.preferredCurrency(),
+                u.phone(), u.gender(), u.profileImage(), u.active(), u.verified(),
                 u.notificationsEnabled(), u.roles(), u.createdAt(), u.updatedAt());
     }
 

@@ -1,5 +1,6 @@
 package com.bookingapp.domain.listing;
 
+import com.bookingapp.domain.shared.PlatformCurrency;
 import com.bookingapp.domain.shared.Require;
 import com.bookingapp.domain.shared.exception.BusinessRuleException;
 
@@ -54,9 +55,9 @@ public class Listing {
 
     /** A new listing starts as a DRAFT and is only visible to its provider's team. */
     public static Listing draft(UUID id, UUID providerId, String name, String description, Location location,
-                                String currency, String phone, String email, ListingDetails details, Instant now) {
-        return new Listing(id, providerId, name, description, location, currency, phone, email, ListingStatus.DRAFT,
-                details, BigDecimal.ZERO, 0, now, now, null);
+                                String phone, String email, ListingDetails details, Instant now) {
+        return new Listing(id, providerId, name, description, location, PlatformCurrency.CODE, phone, email,
+                ListingStatus.DRAFT, details, BigDecimal.ZERO, 0, now, now, null);
     }
 
     private static String optionalEmail(String email) {

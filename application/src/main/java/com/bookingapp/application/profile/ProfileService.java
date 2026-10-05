@@ -46,7 +46,7 @@ public class ProfileService implements ProfileUseCase {
         }
         Instant now = Instant.now();
         user.updateProfile(command.firstName(), command.lastName(), command.username(), command.phone(),
-                command.gender(), command.preferredCurrency(), command.notificationsEnabled(), now);
+                command.gender(), command.notificationsEnabled(), now);
         user.changeProfileImage(command.profileImage(), now);
         return view(userRepository.save(user));
     }

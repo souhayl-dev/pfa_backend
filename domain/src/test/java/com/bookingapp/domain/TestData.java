@@ -31,7 +31,7 @@ public final class TestData {
     }
 
     private static Listing active(String name, ListingDetails details) {
-        Listing listing = Listing.draft(UUID.randomUUID(), UUID.randomUUID(), name, null, marrakech(), "EUR", null,
+        Listing listing = Listing.draft(UUID.randomUUID(), UUID.randomUUID(), name, null, marrakech(), null,
                 null, details, NOW);
         listing.activate(NOW);
         return listing;
@@ -81,6 +81,6 @@ public final class TestData {
     public static Booking held(BookableUnit unit, String start, String end, int guests) {
         return new Booking(UUID.randomUUID(), "BK-7Q2M4X", UUID.randomUUID(), unit.id(), BookingStatus.CONFIRMED,
                 Instant.parse(start), Instant.parse(end), guests, unit.basePrice(),
-                Money.of(unit.basePrice(), "EUR"), null, NOW, NOW);
+                Money.of(unit.basePrice(), "MAD"), null, NOW, NOW);
     }
 }

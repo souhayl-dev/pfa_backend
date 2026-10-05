@@ -25,7 +25,6 @@ public class User {
     private String profileImage;
     private boolean active;
     private boolean verified;
-    private String preferredCurrency;
     private boolean notificationsEnabled;
     private final Set<UserRole> roles;
     private final Instant createdAt;
@@ -33,7 +32,7 @@ public class User {
 
     public User(UUID id, String firstName, String lastName, String email, String username, String passwordHash,
                 String phone, Gender gender, String profileImage, boolean active, boolean verified,
-                String preferredCurrency, boolean notificationsEnabled, Set<UserRole> roles, Instant createdAt,
+                boolean notificationsEnabled, Set<UserRole> roles, Instant createdAt,
                 Instant updatedAt) {
         this.id = Require.notNull(id, "id");
         this.firstName = Require.notBlank(firstName, "firstName", 100);
@@ -46,7 +45,6 @@ public class User {
         this.profileImage = Require.optional(profileImage, "profileImage", 500);
         this.active = active;
         this.verified = verified;
-        this.preferredCurrency = Require.currency(preferredCurrency);
         this.notificationsEnabled = notificationsEnabled;
         this.roles = roles.isEmpty() ? EnumSet.noneOf(UserRole.class) : EnumSet.copyOf(roles);
         this.createdAt = Require.notNull(createdAt, "createdAt");
@@ -56,7 +54,7 @@ public class User {
     public static User register(UUID id, String firstName, String lastName, String email, String passwordHash,
                                 Instant now) {
         Require.notBlank(passwordHash, "passwordHash", 255);
-        return new User(id, firstName, lastName, email, null, passwordHash, null, null, null, true, false, "EUR",
+        return new User(id, firstName, lastName, email, null, passwordHash, null, null, null, true, false,
                 true, Set.of(), now, now);
     }
 
@@ -73,13 +71,12 @@ public class User {
     }
 
     public void updateProfile(String firstName, String lastName, String username, String phone, Gender gender,
-                              String preferredCurrency, boolean notificationsEnabled, Instant now) {
+                              boolean notificationsEnabled, Instant now) {
         this.firstName = Require.notBlank(firstName, "firstName", 100);
         this.lastName = Require.notBlank(lastName, "lastName", 100);
         this.username = validUsername(username);
         this.phone = Require.optional(phone, "phone", 30);
         this.gender = gender;
-        this.preferredCurrency = Require.currency(preferredCurrency);
         this.notificationsEnabled = notificationsEnabled;
         this.updatedAt = now;
     }
@@ -170,10 +167,6 @@ public class User {
 
     public boolean verified() {
         return verified;
-    }
-
-    public String preferredCurrency() {
-        return preferredCurrency;
     }
 
     public boolean notificationsEnabled() {

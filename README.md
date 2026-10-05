@@ -68,6 +68,8 @@ case), `infrastructure/booking` (the tables) and `api/booking` (the endpoints).
   | `TABLE` | restaurant | guests present at the same time fit in the capacity | guest |
   | `TOUR` | travel agency | bookings starting the same day form one group up to the capacity | guest |
 
+- **Currency** - every price is in Moroccan dirhams (`PlatformCurrency`). A listing and a booking
+  still store the code beside their amounts, and the server writes `MAD` there: no request chooses it.
 - **Bookings** - one `Booking` is one client reserving one unit for one period, with the price copied
   at booking time. Status: `PENDING -> CONFIRMED -> COMPLETED`, with `CANCELLED` and `NO_SHOW`; every
   change is saved to `booking_status_history`. One `Review` per completed booking.
@@ -161,7 +163,7 @@ POST  /api/auth/reset-password          { token, newPassword }
 
 GET   /api/profile/me
 PATCH /api/profile/me                   { firstName, lastName, username, phone, gender,
-                                          preferredCurrency, notificationsEnabled, profileImage }
+                                          notificationsEnabled, profileImage }
 PUT   /api/profile/me/client            { nationality, birthDate }
 POST  /api/profile/me/change-password   { currentPassword, newPassword }
 POST  /api/uploads                      multipart file -> { url }
@@ -198,7 +200,7 @@ POST  /api/members/{id}/suspend | /reactivate   |   DELETE /api/members/{id}
 **Provider dashboard** (the whole team reads; owners and managers write)
 
 ```
-POST  /api/providers/{id}/listings      { type, name, city, countryCode, timezone, currency, ...,
+POST  /api/providers/{id}/listings      { type, name, city, countryCode, timezone, ...,
                                           hotel | restaurant | guide | travelAgency | carRentalAgency: {...} }
 GET   /api/providers/{id}/listings
 GET|PUT|DELETE /api/manage/listings/{id}

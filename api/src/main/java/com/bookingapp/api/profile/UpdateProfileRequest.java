@@ -11,7 +11,6 @@ public record UpdateProfileRequest(
         @Size(max = 50) String username,
         @Size(max = 30) String phone,
         Gender gender,
-        @NotBlank @Pattern(regexp = "[A-Z]{3}", message = "must be a 3-letter currency code") String preferredCurrency,
         boolean notificationsEnabled,
         @Size(max = 500) String profileImage) {
 }

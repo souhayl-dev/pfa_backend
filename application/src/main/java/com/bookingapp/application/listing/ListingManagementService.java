@@ -35,7 +35,7 @@ public class ListingManagementService implements ListingManagementUseCase {
     public ListingView create(UUID userId, UUID providerId, ListingCommand command) {
         access.member(userId, providerId).requireCanManageListings();
         Listing listing = Listing.draft(UUID.randomUUID(), providerId, command.name(), command.description(),
-                location(command), command.currency(), command.phone(), command.email(), command.details(),
+                location(command), command.phone(), command.email(), command.details(),
                 Instant.now());
         return views.full(listingRepository.save(listing), true);
     }
@@ -55,9 +55,6 @@ public class ListingManagementService implements ListingManagementUseCase {
     public ListingView update(UUID userId, UUID listingId, ListingCommand command) {
         return unitOfWork.inTransaction(() -> {
             Listing listing = access.manageListing(userId, listingId).listing();
-            if (command.currency() != null && !command.currency().equals(listing.currency())) {
-                throw new BusinessRuleException("the currency of a listing cannot change once it is created");
-            }
             Instant now = Instant.now();
             listing.update(command.name(), command.description(), location(command), command.phone(),
                     command.email(), now);

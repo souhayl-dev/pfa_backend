@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 /**
  * Used to create and update a listing. Send the details object matching the type: hotel, restaurant,
- * guide, travelAgency or carRentalAgency. The type and the currency cannot change after creation.
+ * guide, travelAgency or carRentalAgency. The type cannot change after creation. Prices are in MAD.
  */
 public record ListingRequest(
         @NotNull ListingType type,
@@ -26,7 +26,6 @@ public record ListingRequest(
         BigDecimal latitude,
         BigDecimal longitude,
         @NotBlank String timezone,
-        @Pattern(regexp = "[A-Z]{3}", message = "must be a 3-letter currency code") String currency,
         @Size(max = 30) String phone,
         @Email String email,
         @Valid HotelDetailsDto hotel,
@@ -37,7 +36,7 @@ public record ListingRequest(
 
     public ListingCommand toCommand() {
         return new ListingCommand(name, description, address, city, countryCode, latitude, longitude, timezone,
-                currency, phone, email, details());
+                phone, email, details());
     }
 
     private ListingDetails details() {

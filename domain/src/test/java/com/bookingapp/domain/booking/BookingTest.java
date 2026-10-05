@@ -42,7 +42,7 @@ class BookingTest {
         assertEquals(BookingStatus.PENDING, booking.status());
         assertEquals(new BigDecimal("85.00"), booking.unitPrice());
         assertEquals(new BigDecimal("170.00"), booking.total().amount());
-        assertEquals("EUR", booking.total().currency());
+        assertEquals("MAD", booking.total().currency());
         List<BookingStatusChange> history = booking.pullUnsavedChanges();
         assertEquals(1, history.size());
         assertNull(history.get(0).fromStatus());

@@ -60,9 +60,6 @@ public class UserJpaEntity {
     @Column(name = "is_verified", nullable = false)
     private boolean verified;
 
-    @Column(name = "preferred_currency", nullable = false, length = 3)
-    private String preferredCurrency;
-
     @Column(name = "notifications_enabled", nullable = false)
     private boolean notificationsEnabled;
 
@@ -83,7 +80,7 @@ public class UserJpaEntity {
 
     public UserJpaEntity(UUID id, String firstName, String lastName, String email, String username,
                          String passwordHash, String phone, Gender gender, String profileImage, boolean active,
-                         boolean verified, String preferredCurrency, boolean notificationsEnabled,
+                         boolean verified, boolean notificationsEnabled,
                          Set<UserRole> roles, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.firstName = firstName;
@@ -96,7 +93,6 @@ public class UserJpaEntity {
         this.profileImage = profileImage;
         this.active = active;
         this.verified = verified;
-        this.preferredCurrency = preferredCurrency;
         this.notificationsEnabled = notificationsEnabled;
         this.roles = new HashSet<>(roles);
         this.createdAt = createdAt;
@@ -145,10 +141,6 @@ public class UserJpaEntity {
 
     public boolean isVerified() {
         return verified;
-    }
-
-    public String getPreferredCurrency() {
-        return preferredCurrency;
     }
 
     public boolean isNotificationsEnabled() {
